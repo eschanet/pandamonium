@@ -144,7 +144,7 @@ def getstatus(task, args):
     elif args.taskid:
         fmt_string = '{i}'
     elif args.more_info:
-        fmt_string = '{s:<{l}} {j: <9} {i:<9} {p: <6.0%} {f: <6.0%} {t} '
+        fmt_string = '{s:<{l}} {j: <9} {i:<9} {p: <6.0%} {f: <6.0%} {prio:<9} {t} '
     else:
         fmt_string = '{s:<{l}} {i:<9} {p: <6.0%} {t} '
     if (sys.stdout.isatty() and not args.clean) or args.force_color:
@@ -159,7 +159,8 @@ def getstatus(task, args):
         if args.more_info:
             outputString = fmt_string.format(
                 s=status_color, t=task['taskname'], j=task['jeditaskid'], i=task['reqid'],
-                l=(11 + nonprlen), p=task['dsinfo']["pctfinished"]/100.0, f=task['dsinfo']["pctfailed"]/100.0)
+                l=(11 + nonprlen), p=task['dsinfo']["pctfinished"]/100.0, f=task['dsinfo']["pctfailed"]/100.0,
+                prio=task["taskpriority"])
         else:
             outputString = fmt_string.format(
                 s=status_color, t=task['taskname'], i=task['reqid'],

@@ -15,7 +15,8 @@ _h_taskname='initial search string'
 _h_user='full user name, or blank for all'
 _h_stream='stream name fragment to filter for'
 _h_site='list grid site(s) where job ran'
-_h_days='only look back this many days'
+_h_days='only look back this many days (default: 1000)'
+_h_limit='only query this many tasks'
 _h_clean='clean output: better for cut or grep'
 _h_taskid='output only taskid. useful for piping.'
 _h_print_browser_string = (
@@ -58,6 +59,7 @@ def get_args():
                         default="user.{}".format(os.environ[userenv]) )
     parser.add_argument('-u','--user', help=_h_user + de, default=user)
     parser.add_argument('-d','--days', help=_h_days, type=int)
+    parser.add_argument('-l','--limit', help=_h_limit, type=int)
     addinfo = parser.add_mutually_exclusive_group()
     addinfo.add_argument('-s','--stream', help=_h_stream + c, nargs='?',
                          default=None, const=_def_stream)
@@ -86,7 +88,7 @@ def get_args():
         sys.exit('ERROR: need to pipe datasets or specify a search string')
     return args
 
-def get_request(taskname, user, days=None, json=True, force=False):
+def get_request(taskname, user, days=None, limit=None, json=True, force=False):
     pars = {
         'taskname': taskname,
         'datasets': True,
@@ -99,6 +101,8 @@ def get_request(taskname, user, days=None, json=True, force=False):
         pars['timestamp'] = datetime.datetime.utcnow().strftime('%H:%M:%S')
     if days is not None:
         pars['days'] = days
+    if limit is not None:
+        pars['limit'] = limit
     url = 'https://bigpanda.cern.ch/tasks/?' + urllib.urlencode(pars)
     return urllib2.Request(url, headers=_headers)
 
@@ -175,7 +179,7 @@ def stdin_iter(args):
         task = line.strip()
         if task[-1] not in '/*':
             task = task + '*'
-        req = get_request(task, args.user, args.days)
+        req = get_request(task, args.user, args.days, args.limit)
         for ds in json.loads(urllib2.urlopen(req).read().decode('utf-8')):
             yield ds
 
@@ -189,7 +193,7 @@ def run():
         if args.taskname[-1] not in '/*':
             taskname = taskname + '*'
         use_json = not args.print_browser_string
-        req = get_request(taskname, args.user, args.days, use_json, args.force)
+        req = get_request(taskname, args.user, args.days, args.limit, use_json, args.force)
         if args.print_browser_string:
             sys.stdout.write(req.get_full_url() + '\n')
             return 0

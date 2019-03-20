@@ -25,6 +25,7 @@ _h_print_json_reply = (
     'don\'t format output, just print the json reply from the server')
 _h_force_update = 'don\'t allow caching on the server, (force with timestamp)'
 _h_filter = 'filter for jobs in some states states (i.e. broken, running...)'
+_h_exclude = 'exclude jobs in specific states (inverse of filter)'
 _h_more_info_string = 'print even more information about your jobs!'
 # defaults
 _def_user='GRID_USER_NAME'
@@ -75,6 +76,8 @@ def get_args():
                         help=_h_print_json_reply)
     parser.add_argument('-i', '--filter', help=_h_filter,
                         nargs='+', dest='filt')
+    parser.add_argument('-e', '--exclude', help=_h_exclude,
+                        nargs='+', dest='exclude')
     output.add_argument('-m', '--more-info', action='store_true',
                         help=_h_more_info_string)
 
@@ -208,6 +211,9 @@ def run():
 
     if args.filt:
         datasets = [ds for ds in datasets if ds['status'] in args.filt]
+
+    if args.exclude:
+        datasets = [ds for ds in datasets if not ds['status'] in args.exclude]
 
     # loop over tasks
     for task in datasets:

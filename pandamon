@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Script to retreve datasets (input or output) in submitted jobs
+"""Script to retrieve datasets (input or output) in submitted jobs
 
 With a specified search string, will search for datasets with that
 name. If the name doesn't end in `*` or `/`, append a wildcard.
